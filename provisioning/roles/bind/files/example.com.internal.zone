@@ -1,0 +1,8 @@
+$ORIGIN example.com.
+$TTL 3M
+@   IN SOA ns1.example.com. hostmaster.example.com. 2019071002 3M 3M 3M 3M
+    IN NS ns1.example.com.
+
+ns1 IN A 10.1.19.11
+ns2 IN A 10.1.19.12
+c1  IN A 10.1.19.13

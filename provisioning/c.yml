@@ -1,0 +1,51 @@
+---
+
+- hosts: all
+  tasks:
+    - name: Set timezone to Europe/Oslo
+      when: ansible_date_time.tz != 'Europe/Oslo'
+      command: timedatectl set-timezone Europe/Oslo
+      changed_when: false
+
+    - name: remove default host lookup.
+      lineinfile:
+        path: /etc/hosts
+        regexp: "127.0.1.1.*example.com.*"
+        state: absent
+
+    - name: install tools
+      vars:
+        additional_packages:
+          - htop
+          - jq
+          - tree
+          - traceroute
+          - iftop
+          - python3-pip
+          - ntp
+          - docker-compose
+      apt:
+        pkg: "{{ additional_packages }}"
+        state: present
+
+    - name: install pip modules
+      vars:
+        pip_modules:
+          - docker
+      pip:
+        name: "{{ pip_modules }}"
+        state: latest
+
+    - name: configure DNS
+      blockinfile:
+        path: "/etc/netplan/50-vagrant.yaml"
+        block: |4
+                  nameservers:
+                       addresses:
+                       - 10.1.19.11
+                       - 10.1.19.12
+                       search:
+                       - example.com
+
+    - name: apply DNS settings
+      shell: "netplan apply"

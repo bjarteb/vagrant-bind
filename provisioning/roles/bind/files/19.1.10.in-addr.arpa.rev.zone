@@ -1,0 +1,7 @@
+$ORIGIN 19.1.10.in-addr.arpa.
+$TTL 3M
+@  IN SOA  ns1.example.com. hostmaster.example.com. 2019071002 3M 3M 3M 3M
+   IN NS   ns1.example.com.
+11 IN PTR  ns1.example.com.
+12 IN PTR  ns2.example.com.
+13 IN PTR  c1.example.com.

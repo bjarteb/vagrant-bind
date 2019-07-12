@@ -1,0 +1,63 @@
+---
+
+- hosts: all
+  tasks:
+    - name: Set timezone to Europe/Oslo
+      when: ansible_date_time.tz != 'Europe/Oslo'
+      command: timedatectl set-timezone Europe/Oslo
+      changed_when: false
+
+    - name: remove default host lookup.
+      lineinfile:
+        path: /etc/hosts
+        regexp: "127.0.1.1.*example.com.*"
+        state: absent
+
+    - name: install tools
+      vars:
+        additional_packages:
+          - htop
+          - jq
+          - traceroute
+          - iftop
+          - python3-pip
+          - ntp
+          - docker-compose
+      apt:
+        pkg: "{{ additional_packages }}"
+        state: present
+
+    - name: install pip modules
+      vars:
+        pip_modules:
+          - docker
+      pip:
+        name: "{{ pip_modules }}"
+        state: latest
+
+- hosts: ns1
+  roles:
+    - { role: bind, bind_role: "master" }
+
+- hosts: ns2
+  roles:
+    - { role: bind, bind_role: "slave" }
+
+- hosts: all
+  tasks:
+    - name: stop service systemd-resolved. We will use our own name-server (bind9)
+      service:
+        name: systemd-resolved
+        state: stopped
+
+    - name: We now depend on /etc/resolv.conf. Configure nameserver!
+      lineinfile:
+        path: /etc/resolv.conf
+        regexp: "^nameserver.*"
+        line: "nameserver 127.0.0.1"
+
+    - name: We now depend on /etc/resolv.conf. Configure search!
+      lineinfile:
+        path: /etc/resolv.conf
+        regexp: "^search.*"
+        line: "search example.com"

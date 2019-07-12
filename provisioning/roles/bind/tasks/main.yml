@@ -1,0 +1,42 @@
+---
+
+- name: install bind and bind-utils
+  vars:
+    bind_packages:
+      - bind9
+      - bind9utils
+      - bind9-doc
+  apt:
+    pkg: "{{ bind_packages }}"
+    state: present
+
+- name: create zones directory
+  file: path="{{ item }}" state=directory
+  with_items:
+   - "/etc/bind/zones"
+
+- name: copy zone-files
+  copy: src="{{ item }}" dest="/etc/bind/zones/db.{{ item }}"
+  with_items:
+    - "example.com.internal.zone"
+    - "19.1.10.in-addr.arpa.rev.zone"
+  when: bind_role == "master"
+
+- name: configure bind for ipv4 only
+  template: src="bind9.j2" dest="/etc/default/bind9"
+
+- name: configure bind options
+  template: src="named.conf.options.j2" dest="/etc/bind/named.conf.options"
+
+- name: configure bind local
+  template: src="named.conf.local.master.j2" dest="/etc/bind/named.conf.local"
+  when: bind_role == "master"
+
+- name: configure bind local
+  template: src="named.conf.local.slave.j2" dest="/etc/bind/named.conf.local"
+  when: bind_role == "slave"
+
+- name: restart service bind9, in all cases
+  service:
+    name: bind9
+    state: restarted
