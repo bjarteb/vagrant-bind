@@ -45,9 +45,10 @@
 
 - hosts: all
   tasks:
-    - name: stop service systemd-resolved. We will use our own name-server (bind9)
+    - name: disable service systemd-resolved. We will use our own name-server (bind9)
       service:
         name: systemd-resolved
+        enabled: no
         state: stopped
 
     - name: We now depend on /etc/resolv.conf. Configure nameserver!
