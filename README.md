@@ -18,6 +18,8 @@ Two Ansible playbooks are provided to provision nameserver master/slave nodes an
 Have a look in the provisioning folder for details. 
 Now I am ready to continue my Prometheus exploration.
 
+![alt text][diagram]
+
 ## Setup
 
 ```bash
@@ -97,3 +99,5 @@ vagrant@ns1:~$
 vagrant@ns1:~$ dig ns2 +short +search
 10.1.19.12
 ```
+
+[diagram]: https://github.com/bjarteb/vagrant-bind/blob/master/images/vagrant-bind.png "Diagram"
